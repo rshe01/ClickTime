@@ -31,4 +31,10 @@ const randomPossibleNotification = {
 	message: 'This is a random possible notification!',
 	variant: 'success',
 };
-export const notifications = { randomPossibleNotification };
+
+const errorNotification = {
+	message: 'The chosen category does not have any available phrase. Please choose another category.',
+	variant: 'error',
+};
+
+export const notifications = { errorNotification };

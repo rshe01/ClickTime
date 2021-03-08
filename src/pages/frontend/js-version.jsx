@@ -11,6 +11,9 @@ import { CTButton } from '@components-js/CTButton';
 import { AlphabetGrid } from '@components-js/AlphabetGrid';
 import styles from '../index.module.scss';
 
+import {notifications} from '@utilities-js/constants';
+import { Phrase } from '@components-js/LoadGame/newPhrase';
+
 const FrontendJS = () => {
 	const {
 		data: randomPhrase,
@@ -41,6 +44,20 @@ const FrontendJS = () => {
 		setChosenLetters([]);
 	};
 
+	//my code
+	const [show, setShow] = React.useState(false);
+	const [isDisabled, setIsDisabled] = React.useState(false);
+	const [phrase, setPhrase] = React.useState(undefined);
+
+	const onClickNew = () => {
+		setShow(true);	
+		setIsDisabled(true);
+	}
+	const onClickClose = () => {
+		setShow(false);	
+		setIsDisabled(false);
+	}
+
 	const onClickLetter = ({ letter }) => setChosenLetters([...chosenLetters, letter]);
 
 	const onLoadGame = ({ categoryID, newUsername }) => {
@@ -52,11 +69,28 @@ const FrontendJS = () => {
 		});
 	};
 
+	const onLoadGame2 = ({ categoryID, newPhrase }) => {
+		setPhrase(newPhrase);
+		const PhrasePostModel = ({
+			categoryId: categoryID,
+			difficultyLevelId: 1,
+		});
+		phraseRequest({
+			url: '/api/phrases',
+			method: 'POST',
+			params: { PhrasePostModel },
+		});
+	};
+
 	React.useEffect(() => {
+		if(randomPhraseStatus=='rejected'){
+			setNotification(notifications.errorNotification);
+		}
 		// Front-end Exercise 1
 		// Fill in this function so we display an error when there is an error getting a phrase.
 	}, [randomPhraseStatus]);
 
+	
 	return (
 		<div className={styles.container}>
 			<Head>
@@ -86,7 +120,7 @@ const FrontendJS = () => {
 				<AlphabetGrid
 					onClickLetter={onClickLetter}
 					chosenLetters={chosenLetters}
-					isDisabled={gameStatus !== 'playing'}
+					isDisabled={isDisabled || gameStatus!=='playing'}
 				/>
 				<CTText
 					as="p"
@@ -95,7 +129,12 @@ const FrontendJS = () => {
 				/>
 				<div>
 					<CTButton onClick={onClickRestart} value="Restart Game" />
+					<CTButton onClick={onClickNew} value="Add New Phrase" />
 				</div>
+				<Modal show={show}>
+					<Phrase onLoadGame={onLoadGame2} categories={categories} phrase={phrase}/>
+					<button onClick={onClickClose}>Close</button>
+				</Modal>
 			</main>
 		</div>
 	);
